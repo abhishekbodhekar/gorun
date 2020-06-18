@@ -1,9 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
+
+	"golang.org/x/tools/imports"
 )
 
 const basicCode = "package main \n func main() {\n"
@@ -13,47 +17,79 @@ func main() {
 		Usage()
 		return
 	}
-	file := CreateFile()
-	defer ClearAll(file.Name())
-	WriteAndRenameFile(file)
+	file, err := CreateFile()
+	if err != nil {
+		fmt.Fprint(os.Stderr, err)
+		return
+	}
+	if err = RenameFile(file); err != nil {
+		os.Remove(file.Name())
+		fmt.Fprint(os.Stderr, err)
+		return
+	}
+	defer ClearAll(file)
+	if err = ApplyImports(file); err != nil {
+		fmt.Fprint(os.Stderr, err)
+		return
+	}
+	if err = Run(file); err != nil {
+		fmt.Fprint(os.Stderr, err)
+		return
+	}
+}
+
+func Run(file *os.File) error {
+
+	subProcess := exec.Command("go", "run", file.Name()+".go")
+
+	subProcess.Stdout = os.Stdout
+	subProcess.Stderr = os.Stderr
+	subProcess.Stdin = os.Stdin
+	if err := subProcess.Run(); err != nil {
+		return errors.New("Can not start sub process : " + err.Error())
+
+	}
+	return nil
 
 }
 
-func WriteAndRenameFile(file *os.File) *os.File {
+func ApplyImports(file *os.File) error {
 	code := basicCode + os.Args[1] + "\n}"
-	file.Write([]byte(code))
+	refinedCode, err := imports.Process(file.Name(), []byte(code), nil)
+	if err != nil {
+		return errors.New("Can not apply imports to temp file : " + err.Error())
+	}
+	_, err = file.Write(refinedCode)
+	if err != nil {
+		return errors.New("Can not write refined code to temp file : " + err.Error())
+	}
+	return nil
+}
+
+func RenameFile(file *os.File) error {
 	err := os.Rename(file.Name(), file.Name()+".go")
 	if err != nil {
-		fmt.Fprint(os.Stderr, "Can rename temp file : "+err.Error()+"\n")
-		os.Exit(2)
-
+		return errors.New("Can not rename temp file : " + err.Error())
 	}
-	return file
-
+	return nil
 }
 
-func CreateFile() *os.File {
+func CreateFile() (*os.File, error) {
 	currentDir, err := os.Getwd()
 	if err != nil {
-		fmt.Fprint(os.Stderr, "Can not get currrent directory : "+err.Error()+"\n")
-		os.Exit(2)
+		return nil, errors.New("Can not get currrent directory : " + err.Error())
 	}
-
 	file, err := ioutil.TempFile(currentDir, "temp")
 	if err != nil {
-		fmt.Fprint(os.Stderr, "Can not create temp file : "+err.Error()+"\n")
-		os.Exit(2)
+		return nil, errors.New("Can not create temp file : " + err.Error())
 	}
-	return file
-
+	return file, nil
 }
 func Usage() {
-	fmt.Fprint(os.Stderr, "Usage : gorun [_Body_Of_main()_]\n")
-	os.Exit(2)
+	fmt.Fprint(os.Stderr, `Usage :`+"\t  \t"+` gorun [_Body_Of_main()_]`+"\n"+`Example 1 :`+"\t"+` gorun ' fmt.Println("gorun is fun!") '`+"\n"+`Example 2 :`+"\t"+` gorun ' http.Handle("/", http.FileServer(http.Dir("."))); fmt.Println(http.ListenAndServe(":8080", nil)) '`+"\n")
 }
 
-func ClearAll(name string) {
-	fmt.Println("Clearing, " + name)
-	os.Remove(name)
+func ClearAll(file *os.File) {
+	os.Remove(file.Name() + ".go")
 	os.Exit(2)
 }
