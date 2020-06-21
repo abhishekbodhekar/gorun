@@ -10,7 +10,7 @@ Similar to python -c.
 ```
 go get github.com/abhishekbodhekar/gorun
 ```
-## How to use?
+## How to install?
 After ```go get```,
 
 go to the gorun project and install the binary.
