@@ -22,6 +22,7 @@ now, hit ```gorun``` and check whether gorun command is installed?
 
 
 if you see usage of gorun, then all is set and you can use the command now.
+
 Else, check if you have properly set your $GOBIN. Also check if $GOBIN is added in $PATH.
 
 ## Examples 
