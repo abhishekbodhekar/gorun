@@ -29,12 +29,18 @@ Else, check if you have properly set your $GOBIN. Also check if $GOBIN is added 
  
 Write any Go code (body of main()), gorun will handle your imports and main function for you.
 
-```gorun 'fmt.Println("gorun is fun!")'``` 
+```
+gorun 'fmt.Println("gorun is fun!")'
+``` 
 
 You can quickly serve your current directory in one line.
  
-```gorun 'http.Handle("/", http.FileServer(http.Dir("."))); fmt.Println(http.ListenAndServe(":8080", nil))'```
+```
+gorun 'http.Handle("/", http.FileServer(http.Dir("."))); fmt.Println(http.ListenAndServe(":8080", nil))'
+```
 
 Quickly find the date.
 
-```gorun 'fmt.Println(time.Now())'```
+```
+gorun 'fmt.Println(time.Now())'
+```
