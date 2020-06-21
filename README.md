@@ -10,6 +10,17 @@ Similar to python -c.
 ```
 go get github.com/abhishekbodhekar/gorun
 ```
+## How to use?
+After ```go get ```,
+go to the gorun project and install the binary.
+
+at root of gorun, 
+``` go install ```
+
+now, check if gorun command is installed?
+``` gorun ```
+if you see usage of gorun, then all is set and you can use the command now.
+Else, check if you have properly set your $GOBIN. Also check if $GOBIN is added in $PATH.
 
 ## Examples 
  
