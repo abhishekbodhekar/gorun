@@ -31,16 +31,19 @@ Write any Go code (body of main()), gorun will handle your imports and main func
 
 ```
 gorun 'fmt.Println("gorun is fun!")'
+gorun is fun!
 ``` 
 
 You can quickly serve your current directory in one line.
  
 ```
 gorun 'http.Handle("/", http.FileServer(http.Dir("."))); fmt.Println(http.ListenAndServe(":8080", nil))'
+
 ```
 
 Quickly find the date.
 
 ```
 gorun 'fmt.Println(time.Now())'
+2009-11-10 23:00:00 +0000 UTC m=+0.000000001
 ```
