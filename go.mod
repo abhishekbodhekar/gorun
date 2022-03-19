@@ -1,4 +1,4 @@
-module github.com/abhishekbodhekar/gorun
+module gorun
 
 go 1.12
 
